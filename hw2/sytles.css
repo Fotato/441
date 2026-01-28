@@ -1,0 +1,92 @@
+@media only screen and (max-width: 768px) {
+  body{
+    /*pretty sure this does nothing...*/
+    background-size: contain;
+    }
+}
+
+.container {
+    border: solid 2px rgb(206, 103, 51);
+}
+
+.container:before,
+.container:after {
+    content: "";
+    display: table;
+}
+
+.container:after {
+    clear: both;
+}
+
+/*not used, but I might want it later*/
+.column-halved{
+    float: left;
+    width: 50%;
+    overflow: hidden;
+    .column-halved-1{
+        background-color: rgba(120, 51, 0, 0.5);
+    }
+}
+
+body{
+    background-color: black;
+    background-image: url(imgs/crazy_canyon.JPG);
+    /*background-size:cover;*/
+      background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+h1{
+    font-size: 5vw;
+    text-align: center;
+    padding-top: 0.25em;
+    /*padding-bottom: 0.25em;*/
+    font-weight: 1000;
+}
+
+p{
+    font-size: 4vw;
+    text-align: left;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    margin-left: .5em;
+    margin-right: .5em;
+    font-weight: 100;
+}
+
+button{
+    text-align: center;
+    font-size: 4vw;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.0);
+    border: rgba(0, 0, 0, 0.0);
+}
+button:hover{
+    background-color:rgb(206, 103, 51, 0.4);
+}
+
+.button-container{
+    display: flex;
+    justify-content: space-between;
+    margin-left: .5em;
+    margin-right: .5em;
+    margin-bottom: .5em;
+}
+
+.content-box{
+    position: relative;
+	color: #fff;
+    margin-left: 15%;
+	margin-right: 15%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+	background-color: rgba(120, 51, 0, 0.5);
+    
+    .content-box-2{
+        background-color: rgba(134, 76, 35, 0.5);
+    }
+}
