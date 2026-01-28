@@ -13,6 +13,9 @@ if(universal_answer == 42){
     window.alert("That can't be right.")
 };
 
+// emotional_face is a constant, meaning constant reference
+// per w3schools () "It does not define a constant value. It defines a constant reference to a value."
+// https://www.w3schools.com/JS/js_const.asp
 const emotional_face = document.getElementById("emotional_face");
 const message1 = document.getElementById("message1");
 
