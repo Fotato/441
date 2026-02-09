@@ -65,7 +65,7 @@ function afternoon_phase(previous_choice){
 
     if (previous_choice == 1){
         header1.textContent = "Light Filters Through Your Blinds...";
-        message.textContent = "You awaken once more, this time without your alarm's assistance. Its plastic face seems disappointment as it displays the time: 11:30 am! Oh God! Your boss is going to kill you and the half-dozen missed calls on your phone only serves to exacerbate your worry.";
+        message.textContent = "You awaken once more, this time without your alarm's assistance. Its plastic face seems disappointment as it displays the time: 11:30 am! Oh God! Your boss is going to kill you and the half-dozen missed calls on your phone only serve to exacerbate your worry.";
         
         option1.textContent = "Go to work";
         option1.addEventListener("click", ()=> night_phase(1));
