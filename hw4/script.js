@@ -137,7 +137,7 @@ function night_phase(previous_choice){
         prompt_text.textContent = "Mommy?"
     } else{
         header1.textContent = "Not Enough REM...";
-        message.textContent = "A day filled with napping turns quickly to panic as you rush to your bedroom window. You throw it open and plunge through. Unfortunately in your bleariness you forgot that you didn't live in an apartment complex and that your house didn't have a fire escape. Instead of a great escape you tumble through the hedge planted below the window. In the commotion of snapping branches and exclamation of pain your boss's secretary runs up to the bush, \"oh my God! Are you okay?!\""
+        message.textContent = "A day filled with napping turns quickly to panic as you rush to your bedroom window. You throw it open and plunge through. Unfortunately in your bleariness you forgot that you didn't live in an apartment complex and that your house doesn't have a fire escape. Instead of a great escape you tumble through the hedge planted below the window. In the commotion of snapping branches and exclamation of pain your boss's secretary runs up to the bush, \"oh my God! Are you okay?!\""
         prompt_text.textContent = "Hope you can muster another oscar-worthy performance."
     }
 }
