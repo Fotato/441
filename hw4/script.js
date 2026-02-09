@@ -117,7 +117,7 @@ function night_phase(previous_choice){
     
     } else if (previous_choice == 4){
         header1.textContent = "Hilarity To Horror...";
-        message.textContent = "You laugh at Shane's joke. It was just what you needed. In the world of routine and constant déjà vu Shane's stupid jokes keep you alive. Of course the joke wasn't that funny, but you can't stop laughing. Oh no! You can't stop laughing! Tears start streaming down your cheeks; the jubilation you once felt turns to panic. This intensifies the laughter until Shane takes a step back. He says something, but you can't hear it over your billowing laughter."
+        message.textContent = "You laugh at Shane's joke. It was just what you needed. In the world of routine and constant déjà vu Shane's stupid jokes keep you alive. Of course the joke wasn't that funny, but you can't stop laughing. Oh no! You can't stop laughing! Tears start streaming down your cheeks; the jubilation you once felt turns to panic. This intensifies the laughter until Shane takes a step back. He says something, but you can't hear it over your bellowing laughter."
         prompt_text.textContent = "\"It wasn\'t that funny\" -Shane"
     } else if (previous_choice == 5){
         header1.textContent = "Hilarity To Hostility...";
@@ -130,7 +130,7 @@ function night_phase(previous_choice){
     } else if (previous_choice == 7){
         header1.textContent = "Barefaced Liar...";
         message.textContent = "You answer the door. Your boss's secretary looks at you inquisitively. You try to muster another oscar-worthy act, but in your lethargy and bed-rottenness you can only manage something akin to indifference. The jig is up. She hands you two gatorade bottles and turns on her heel. You watch her as she walks away, her hair swishing austerely."
-        prompt_text.textContent = "You should probably fix up your Résumé."
+        prompt_text.textContent = "You should probably fix up your résumé."
     } else if (previous_choice == 8){
         header1.textContent = "Open Sesame...";
         message.textContent = "You pretend to be asleep. A minute later the knocking stops. Then an insidious sensation creeps up your spine. Through half-shut lids you see the secretary approach your bedroom window. Shockingly, she jimmies the window open and crawls through. You almost jump up and shout at her, but then you'd be found out. So instead you lay still and wait. She creeps forward and sets two bottles of gatorade, red flavor, on your nightstand. She sits at the edge of the bed and begins to hum a lullaby. You are not soothed and you suppress shivers of fear."
