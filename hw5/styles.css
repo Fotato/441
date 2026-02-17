@@ -1,0 +1,76 @@
+*{
+    font-family: 'Courier New', Courier, monospace;
+}
+body{
+    background-color: rgb(4, 1, 19);
+}
+
+h1{
+    font-size: 4rem;
+    margin-left: 25%;
+    margin-right: 25%;
+    color: blanchedalmond;
+}
+
+p{
+    font-size: 2rem;
+    /*
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+.sub_message{
+    color: blanchedalmond;
+    font-size: 2rem;
+    padding-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+button{
+    color: blanchedalmond;
+    font-size: 2rem;
+    width: 50%;
+    height: 3rem;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-bottom: 1%;
+    border-radius: 10px;
+    background-color: rgb(27, 22, 54, 0.5);
+    border: rgba(0, 0, 0, 0.0);
+    
+    &:hover{
+        background-color: rgb(27, 22, 54);
+    }
+}
+
+input{
+    background-color: rgb(27, 22, 54);
+    border: 2px solid rgb(4, 1, 19);
+    color:cyan;
+    font-size: 2rem;
+}
+
+.message_display{
+    background-color: rgb(27, 22, 54, 0.5);
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    border-radius: 10px;
+    color: darkkhaki;
+}
+
+.option_display{
+    background-color: rgb(27, 22, 54);
+    margin-left: 25%;
+	margin-right: 25%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    border-radius: 1%;
+    color: blanchedalmond;
+}
