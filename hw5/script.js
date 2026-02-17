@@ -147,14 +147,14 @@ function night_phase(previous_choice){
         message.textContent ="";
 
         //message.textContent = "You answer the door. Your boss's secretary looks at you inquisitively. Choose your next words carefully.";
-        message.insertAdjacentHTML("beforeend", "You open your front door. Your boss's secretary stands before you; limned harshly by daylight. Hey Sara! ");
+        message.insertAdjacentHTML("beforeend", "You open your front door. Your boss's secretary stands before you; limned harshly by daylight. You decide to speak: \"Hey Sara! ");
         // correct answer is "how"
         message.insertAdjacentHTML("beforeend", "<input id=\"word1\" type=\"text\" placeholder=\"...\" style=\"width:3ch;\" maxlength=\"3\"> are you? ");
         // correct answer is "sorry" and "sick" or "bad" or "ill"
         message.insertAdjacentHTML("beforeend", "<input id=\"word2\" type=\"text\" placeholder=\".....\" style=\"width:5ch;\" maxlength=\"5\"> that I couldn't make it to the office today, I've been feeling really <input id=\"word3\" type=\"text\" placeholder=\"....\" style=\"width:4ch;\" maxlength=\"4\">.");
-        message.insertAdjacentHTML("beforeend","<i>*cough* *cough*</i> ");
+        message.insertAdjacentHTML("beforeend","\" <i>*cough* *cough*</i> \"");
         // correct answer is "tomorrow"
-        message.insertAdjacentHTML("beforeend","I'll probably be at work <input id=\"word4\" type=\"text\" placeholder=\"........\" style=\"width:8ch;\" maxlength=\"8\">, but we'll have to wait and see.")
+        message.insertAdjacentHTML("beforeend","I'll probably be at work <input id=\"word4\" type=\"text\" placeholder=\"........\" style=\"width:8ch;\" maxlength=\"8\">, but we'll have to wait and see.\"")
         sub_message.textContent = "Here goes nothing...";
 
         // add a new submission button
@@ -196,7 +196,7 @@ function secret_night_phase(){
     if (secret_night_phase_validate(w1,w2,w3,w4)){
         //success
         header1.textContent = "Silver Tongue...";
-        message.textContent = "Impressed with your \"candor\" Sara gives you a smile and two red Gatorade bottles. \"I hope so! The office isn't the same without you~\" You try to say something, but thankfully Sara mistakes your stammering for the grumblings of sickitude. Sara turns to leave, but not before giving you a wink. Your mouth starts to get dry. Maybe you are getting sick...";
+        message.textContent = "Impressed with your \"candor\" Sara gives you a smile and two red Gatorade bottles. \"I hope so! The office isn't the same without you~\" You try to say something, but thankfully Sara mistakes your stammering for the grumblings of sickitude. Sara turns to leave, but not before giving you a wink. You feel your mouth dry out. Maybe you\'re getting sick after all...";
         //sub_message.textContent = 
         for (let i = 0; i < 3; i++){
             setTimeout(()=>{celebration(i)}, i * 1500);
@@ -221,7 +221,7 @@ function secret_night_phase_validate(w1, w2, w3, w4){
     }
 }
 
-// DEBUG -- there is a bug where if you quit out before setTimeout is complete, it will continue to change the sub_message.
+// DEBUG -- there is a bug where if you quit out before setTimeout is complete, it will continue to change the sub_message even in a different display.
 function celebration(i){
     switch(i){
             case 0:
