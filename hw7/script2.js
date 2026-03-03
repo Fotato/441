@@ -77,7 +77,9 @@ function arrange_cards()
 }
 
 var counter = 0;
-var previous_card_choice = null;
+var attempts = 0;
+var success_counter = 0;
+var card_pick_list = new Array();
 
 function flip_card(card_number)
 {
@@ -85,30 +87,50 @@ function flip_card(card_number)
     counter++;
     // this detects if a card has already been flipped
     if (counter % 2 === 0)
-    {
-        counter = 0;
-        if (card_front_double_shuffle_array[card_number] === card_front_double_shuffle_array[previous_card_choice] && card_number !== previous_card_choice)
+    {   // using the card_pick_list could cause major issues if it is a string...
+        if (card_front_double_shuffle_array[card_number] === card_front_double_shuffle_array[card_pick_list[0]] && card_number !== card_pick_list[0])
         {
             document.getElementById("card" + card_number).src = card_front_double_shuffle_array[card_number];
             document.getElementById("scoreboard").textContent = "They Match!";
             console.log("They match!");
-            previous_card_choice = null;
+            
+            // if the cards matched, the history of card picks no longer matters. Delete the history.
+            card_pick_list = [];
+            success_counter++;
         }
         else
         {
+            document.getElementById("card" + card_number).src = card_front_double_shuffle_array[card_number];
             document.getElementById("scoreboard").textContent = "They Don't Match!";
             console.log("The don't match.");
-            document.getElementById("card" + card_number).src = "img/card_back.png";
-            document.getElementById("card" + previous_card_choice).src = "img/card_back.png";
+            card_pick_list.push(Number(card_number));
         }
+        attempts++;
     }
     else
     {
+        // if the card picked is the third in the series and after a unsuccessful match.
+        if (counter >= 3 && card_pick_list.length !== 0)
+        {
+            document.getElementById("card" + card_pick_list[0]).src = "img/card_back.png";
+            document.getElementById("card" + card_pick_list[1]).src = "img/card_back.png";
+            card_pick_list = [];
+        }
         document.getElementById("card" + card_number).src = card_front_double_shuffle_array[card_number];
-        previous_card_choice = card_number;
+        // not sure if I need to use Number... worried that it will store this as a string...
+        card_pick_list.push(Number(card_number));
     }
-    // reset the scoreboard
-    //document.getElementById("scoreboard").textContent = "";
+    // check if the player has won. compare the total matches against the total possible matches.
+    if (success_counter === (card_front_double_shuffle_array.length/2))
+    {
+        console.log("The player has won!");
+        document.getElementById("scoreboard").textContent = "Congratulations! You Won!!!!";
+        let player_info = JSON.parse(localStorage.getItem("player_info"));
+        player_info.attempts = attempts;
+        localStorage.setItem("player_info",JSON.stringify(player_info));
+
+        setTimeout(()=>{window.location="page3.html"}, 3000);
+    }
 }
 
 // START

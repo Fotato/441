@@ -1,0 +1,19 @@
+*
+{
+    color: aliceblue;
+}
+
+button, input
+{
+    color: black;
+}
+
+body
+{
+    background-color: darkslategrey;
+}
+
+img
+{
+    padding: 1%;
+}
