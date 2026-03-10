@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homework 8</title>
+    <link rel="Stylesheet" href="styles.css">
+</head>
+<body onload="slide_1.display_slide()">
+    <div id="total_display" class="total_display">
+        <div id="image_display">
+            <!--images-->
+            <img id="images">
+        </div>
+        <div id="column_view" class="column_view">
+            <div id="information_display" class="information_display">
+                <!--titles-->
+                <h1 id="titles"></h1>
+                <!--descriptions-->
+                <p id="descriptions"></p>
+            </div>
+            <div id="reference_display" class="reference_display">
+                <h1>References</h1>
+                <!--authors-->
+                <p id="authors" class="reference"></p>
+                <!--years-->
+                <p id="years" class="reference"></p>
+                <!--sources-->
+                <a id="sources" class="reference" target="_blank">Visit Source</a>
+            </div>
+        </div>
+        <div id="selection_display" class="selection_display">
+            <button onclick="slide_1.previous_image()">&lt; Previous</button>
+            <button onclick="slide_1.next_image()">Next &gt;</button>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
