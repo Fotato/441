@@ -1,0 +1,48 @@
+body
+{
+    background-color: rgb(29, 29, 66);
+}
+
+h1
+{
+    display: inline;
+}
+
+img
+{
+    display: inline;
+    margin-right: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    width: 60px;
+    height: 40px;
+}
+
+p
+{
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+
+#search_menu
+{
+    margin-left: 30%;
+    margin-right: 30%;
+    background-color: white;
+}
+
+#country_container
+{
+    display: none;
+}
+
+.individual_country_div
+{
+    background: rgb(93, 93, 168);
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-radius: 25px;
+    &:hover{
+        background-color: rgb(137, 137, 207);
+    }
+}
