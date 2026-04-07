@@ -1,0 +1,27 @@
+body
+{
+    background-color: rgb(196, 172, 143);
+}
+
+h1
+{
+    text-align: center;
+}
+
+canvas
+{
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    background-color: bisque;
+    border-style: dashed;
+    border-color: rgb(250, 169, 70);
+    border-width: 2px;
+}
+
+.controls
+{
+    width: 60px;
+}
