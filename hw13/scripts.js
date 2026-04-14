@@ -80,10 +80,11 @@ class Game
         this.obstacles_array = [];
         this.collectables_array = [];
         this.score = 0;
+        this.score_max = null;
     }
     check_if_won()
     {
-        if (this.collectables_array.length === 0)
+        if (this.score === this.score_max)
         {
             message.innerHTML = `You Won!`;
             document.body.style.backgroundColor = "#00ff00";
@@ -123,6 +124,7 @@ class Game
         {
             let collectable = new Collectable(obj.x, obj.y);
             this.add_collectable(collectable);
+            this.score_max++;
         });
     }
     draw_player(ctx)
