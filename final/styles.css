@@ -1,0 +1,30 @@
+body
+{
+    background-color: rgb(196, 172, 143);
+}
+
+h1
+{
+    text-align: center;   
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: rgb(221, 95, 23);
+}
+
+canvas
+{
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    background-color: bisque;
+    border-style: solid;
+    border-color: rgb(250, 169, 70);
+    border-width: 2px;
+}
+
+#dashboard
+{
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    background-color: bisque;
+}
