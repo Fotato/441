@@ -19,3 +19,8 @@ I'll be honest, there was very little intention at first. But after I finished y
 I think I would continue to make fun shapes with the lines, or if I felt especially ambitious I would make a rudimentary game.
 
 If I were to continue to learn about Three.JS I would try an figure out how to appropriately segment the business logic of a game and the rendering. I will say, I am very interested in the underlying mechanics of a 3D engine, so maybe one day I'll see how they work.
+
+## Tools I used
+
+* Google Gemini
+* https://www.desmos.com/3d
