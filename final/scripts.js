@@ -6,8 +6,9 @@ const canvas_y = 600;
 const dashboard = document.getElementById("dashboard");
 dashboard.style.width = canvas_x + "px";
 
-const message = document.getElementById("message");
-const scoreboard = document.getElementById("scoreboard");
+const player_stats = document.getElementById("player_stats");
+const level = document.getElementById("level");
+const enemies = document.getElementById("enemies");
 
 const canvas = document.getElementById("myCanvas");
 canvas.width = canvas_x;
@@ -16,33 +17,62 @@ canvas.height = canvas_y;
 // think of this as the paint brush
 const ctx = canvas.getContext("2d");
 
+class Hitbox
+{
+    constructor()
+    {
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
+    }
+}
+
 class Player
 {
-    constructor(name, x, y)
+    constructor(name, x, y, hitbox)
     {
         this.name = name;
         this.color = "#00ff00";
         this.width = 50;
         this.height = 50;
+        this.hitbox = hitbox
         this.x = x;
         this.y = y;
         this.angle = 0;
         this.speed = 8;
         this.rotation_speed = 0.1;
+
+        // Upon object initialization modify hitbox to match player x, y, width * 0.9, height * 0.9
+        this.hitbox.x = this.x - (this.width * 0.9) / 2;
+        this.hitbox.y = this.y - (this.height * 0.9) / 2;
+
+        // The hitbox is purposefully slightly smaller than the player's visible profile.
+        this.hitbox.width = this.width * 0.9;
+        this.hitbox.height = this.height * 0.9;
     }
     move_player_forward()
     {
-        // DEBUG -- CHECK THIS
         // https://www.youtube.com/watch?v=Jhgc1X8qvAc
         // https://youtu.be/YGez3r7rZjw?t=237
 
+        // move player
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
+
+        // move hitbox
+        this.hitbox.x += Math.cos(this.angle) * this.speed;
+        this.hitbox.y += Math.sin(this.angle) * this.speed;
     }
     move_player_backward()
     {
+        // move player
         this.x -= Math.cos(this.angle) * this.speed;
         this.y -= Math.sin(this.angle) * this.speed;
+
+        //move hitbox
+        this.hitbox.x -= Math.cos(this.angle) * this.speed;
+        this.hitbox.y -= Math.sin(this.angle) * this.speed;
     }
     // DEBUG -- Technically each rotation could climb to infinity. This is not ideal, obviously.
     rotate_player_clockwise()
@@ -53,36 +83,95 @@ class Player
     {
         this.angle -= this.rotation_speed;
     }
+    increase_speed()
+    {
+        if (this.speed < 16)
+        {
+            this.speed += 1;
+        }
+    }
+    increase_rotation_speed()
+    {
+        if (this.rotation_speed < 0.25)
+        {
+            this.rotation_speed += 0.05
+        }
+    }
 }
 
-class Obstacle
+class Enemy
 {
-    constructor(width, height, x, y)
+    constructor(width, height, x, y, speed)
     {
-        this.color = "#ff0000";
+        this.color = "#dd0000";
+        this.health = 3;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
+        this.speed = speed;
+    }
+    reduce_health()
+    {
+        this.health -= 1;
+        this.width *= 0.9;
+        this.height *= 0.9;
+        if (this.health === 2)
+        {
+            this.color = "#ee0000";
+        }
+        else if (this.health === 1)
+        {
+            this.color = "#ff0000";
+        }
+    }
+    move_enemy_up()
+    {
+        this.y -= this.speed;
+    }
+    move_enemy_down()
+    {
+        this.y += this.speed;
+    }
+    move_enemy_left()
+    {
+        this.x -= this.speed;
+    }
+    move_enemy_right()
+    {
+        this.x += this.speed;
     }
 }
 
 class Bullet
 {
-    constructor()
+    constructor(hitbox)
     {
         this.color = "#ff7300";
         this.width = 10;
         this.height = 10;
+        this.hitbox = hitbox
         this.x = 0;
         this.y = 0;
         this.angle = 0;
         this.speed = 16;
+
+        // Upon object initialization modify hitbox to match Bullets x, y, width, height
+        this.hitbox.x = this.x - (this.width) / 2;
+        this.hitbox.y = this.y - (this.height) / 2;
+
+        this.hitbox.width = this.width;
+        this.hitbox.height = this.height;
     }
     move_bullet_forward()
     {
+        // move bullet forward
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
+
+        // move hitbox forward
+        this.hitbox.x += Math.cos(this.angle) * this.speed;
+        this.hitbox.y += Math.sin(this.angle) * this.speed;
     }
 }
 
@@ -105,29 +194,20 @@ class Game
         this.x_boundary = canvas_x;
         this.y_boundary = canvas_y;
         this.player = player;
-        this.obstacles_array = [];
         this.bullet_array = [];
         this.collectables_array = [];
-        this.score = 0;
-        this.score_max = null;
-    }
-    check_if_won()
-    {
-        if (this.score === this.score_max)
-        {
-            message.innerHTML = `You Won!`;
-            document.body.style.backgroundColor = "#00ff00";
-        }
-    }    
-    add_obstacle(obstacle)
-    {
-        this.obstacles_array.push(obstacle);
+        this.enemy_array = [];
+        this.level = 0;
+        this.player_has_lost = false;
     }
     add_bullet()
     {
-        let bullet = new Bullet();
+        let hitbox = new Hitbox();
+        let bullet = new Bullet(hitbox);
         bullet.x = this.player.x - bullet.width / 2;
         bullet.y = this.player.y - bullet.height / 2;
+        bullet.hitbox.x = bullet.x;
+        bullet.hitbox.y = bullet.y;
         bullet.angle = this.player.angle;
 
         this.bullet_array.push(bullet);
@@ -146,28 +226,13 @@ class Game
         // https://www.geeksforgeeks.org/javascript/how-to-remove-a-specific-item-from-an-array-in-javascript/
         this.collectables_array = this.collectables_array.filter(object => object !== collectable);
     }
-    async get_obstacle_json()
+    add_enemy(enemy)
     {
-        const response = await fetch('./data/obstacles.json');
-        const data = await response.json();
-
-        data.forEach(obj =>
-        {
-            let obstacle = new Obstacle(obj.width, obj.height, obj.x, obj.y);
-            this.add_obstacle(obstacle);
-        });
+        this.enemy_array.push(enemy);
     }
-    async get_collectable_json()
+    remove_enemy(enemy)
     {
-        const response = await fetch('./data/collectables.json');
-        const data = await response.json();
-
-        data.forEach(obj =>
-        {
-            let collectable = new Collectable(obj.x, obj.y);
-            this.add_collectable(collectable);
-            this.score_max++;
-        });
+        this.enemy_array = this.enemy_array.filter(object => object !== enemy);
     }
     draw_player(ctx)
     {   
@@ -179,8 +244,6 @@ class Game
         // translate() - moves elements on the canvas to a new point in the grid
         ctx.translate(this.player.x, this.player.y);
         ctx.rotate(this.player.angle);
-
-        // DEBUG -- FIX THE CORDS A BIT.
 
         // Add tank tracks
         ctx.fillStyle = "#00cc00";
@@ -200,17 +263,8 @@ class Game
         // this restores the pre-canvas rotation.
         ctx.restore();
     }
-    draw_obstacle(ctx)
-    {
-        for (let i = 0; i < this.obstacles_array.length; i++)
-        {
-            ctx.fillStyle = this.obstacles_array[i].color;
-            ctx.fillRect(this.obstacles_array[i].x, this.obstacles_array[i].y, this.obstacles_array[i].width, this.obstacles_array[i].height);
-        }
-    }
     move_and_draw_bullet(ctx)
     {
-        // DEBUG -- FIX ME!!!
         for (let i = 0; i < this.bullet_array.length; i++)
         {
             ctx.fillStyle = this.bullet_array[i].color;
@@ -234,49 +288,23 @@ class Game
             ctx.fillRect(this.collectables_array[i].x, this.collectables_array[i].y, this.collectables_array[i].width, this.collectables_array[i].height);
         }
     }
-    check_bullet_bounds()
+    draw_enemy(ctx)
     {
-        for (let i = 0; i < this.bullet_array.length; i++)
+        for (let i = 0; i < this.enemy_array.length; i++)
         {
-            console.log(this.bullet_array.length)
-            if (this.is_out_of_bounds(this.bullet_array[i]))
-            {
-                console.log("deleting bullet")
-                this.remove_bullet(this.bullet_array[i]);
-            }
+            
+            ctx.fillStyle = this.enemy_array[i].color;
+            ctx.fillRect(this.enemy_array[i].x, this.enemy_array[i].y, this.enemy_array[i].width, this.enemy_array[i].height);
         }
     }
-    is_out_of_bounds(entity)
+    check_enemy_health()
     {
-        // check top side of entity
-        if (entity.y < 0)
+        for (let i = 0; i < this.enemy_array.length; i++)
         {
-            entity.y = 0;
-            return true;
-        }
-        // check bottom side of entity
-        else if ((entity.y + entity.height) > this.y_boundary)
-        {
-            //this.y_boundary
-            entity.y = this.y_boundary - entity.height;
-            return true;
-        }
-        // check left side of entity
-        else if (entity.x < 0)
-        {
-            entity.x = 0
-            return true;
-        }
-        // check right side of entity
-        else if (entity.x + entity.width > this.x_boundary)
-        {
-            entity.x = this.x_boundary - entity.width;
-            return true;
-        }
-        // no collision with boundary
-        else
-        {
-            return false;
+            if (this.enemy_array[i].health <= 0)
+            {
+                this.remove_enemy(this.enemy_array[i]);
+            }
         }
     }
     has_collided(object1, object2)
@@ -288,63 +316,103 @@ class Game
         (object1.x > (object2.x + object2.width))
         );
     }
-    /*
-    https://www.youtube.com/watch?v=_MyPLZSGS3s
-    i ended up using something else, but i used this as a starting point.
-    */
-    // Midpoint Comparison
-    check_obstacle_collision(entity)
+    // check bullet bounds AND check if bullet has collided with an enemy
+    check_bullet()
     {
-        for (let i = 0; i < this.obstacles_array.length; i++)
+        // i was having a lot of issues iterating through the look from start to finish. Fixed once i went back to front.
+        // this was because the way i delete things from array causes everything to shift down. This is super bad.
+        // deleting from the top does not cause that cascading shifting.
+        for (let i = this.bullet_array.length - 1; i >= 0; i--)
         {
-            if (this.has_collided(entity,this.obstacles_array[i]))
+            // is out of bounds?
+            if (this.is_out_of_bounds(this.bullet_array[i]))
             {
-                // get the mid levels for the entity AND the obstacle
-                let entity_mid_x = entity.x + (entity.width / 2);
-                let entity_mid_y = entity.y + (entity.height / 2);
-                let obstacle_mid_x = this.obstacles_array[i].x + (this.obstacles_array[i].width / 2);
-                let obstacle_mid_y = this.obstacles_array[i].y + (this.obstacles_array[i].height / 2);
-                
-                // compare difference of each mid level to determine the largest overlap
-                let diff_x = entity_mid_x - obstacle_mid_x;
-                let diff_y = entity_mid_y - obstacle_mid_y;
+                console.log("out of bounds: deleting bullet")
+                this.remove_bullet(this.bullet_array[i]);
 
-                // x-axis collision checked first.
-                if (Math.abs(diff_x / this.obstacles_array[i].width) > Math.abs(diff_y / this.obstacles_array[i].height))
+                // This is necessary, because if the bullet is deleted on the border, the bullet cannot then be checked against the enemy.
+                continue;
+            }
+            // has collided with enemy?
+            for (let z = 0; z < this.enemy_array.length; z++)
+            {
+                if(this.has_collided(this.bullet_array[i].hitbox,this.enemy_array[z]))
                 {
-                    if (diff_x > 0)
-                    {
-                        entity.x = this.obstacles_array[i].x + this.obstacles_array[i].width;
-                    }
-                    else
-                    {
-                        entity.x = this.obstacles_array[i].x - entity.width;
-                    }
-                }
-                // y-axis collision checked if not x-axis
-                else
-                {
-                    if (diff_y > 0)
-                    {
-                        entity.y = this.obstacles_array[i].y + this.obstacles_array[i].height;
-                    }
-                    else
-                    {
-                        entity.y = this.obstacles_array[i].y - entity.height;
-                    }
+                    console.log("enemy collision: deleting bullet");
+                    this.remove_bullet(this.bullet_array[i]);
+                    this.enemy_array[z].reduce_health();
+
+                    // break out from loop if bullet gone.
+                    break;
                 }
             }
         }
     }
+    // This function now ONLY works with objects that have Hitbox!!
+    is_out_of_bounds(entity)
+    {
+        // check top side of entity
+        if (entity.hitbox.y < 0)
+        {
+            entity.hitbox.y = 0;
+            entity.y = entity.hitbox.y + (entity.hitbox.height / 2)
+            
+            return true;
+        }
+        // check bottom side of entity
+        else if ((entity.hitbox.y + entity.hitbox.height) > this.y_boundary)
+        {
+            entity.hitbox.y = this.y_boundary - entity.hitbox.height;
+            entity.y = entity.hitbox.y + (entity.hitbox.height / 2);
+            return true;
+        }
+        // check left side of entity
+        else if (entity.hitbox.x < 0)
+        {
+            entity.hitbox.x = 0;
+            entity.x = entity.hitbox.x + (entity.hitbox.width / 2);
+            return true;
+        }
+        // check right side of entity
+        else if (entity.hitbox.x + entity.hitbox.width > this.x_boundary)
+        {
+            entity.hitbox.x = this.x_boundary - entity.hitbox.width;
+            entity.x = entity.hitbox.x + (entity.hitbox.width / 2);
+            return true;
+        }
+        // no collision with boundary
+        else
+        {
+            return false;
+        }
+    }
+    // DEBUG -- SHOULD I REMOVE FROM FRONT TO BACK OR OTHER WAY AROUND?
     check_collectable_collision()
     {
         for (let i = 0; i < this.collectables_array.length; i++)
         {
-            if (this.has_collided(this.player,this.collectables_array[i]))
+            if (this.has_collided(this.player.hitbox,this.collectables_array[i]))
             {
                 this.remove_collectable(this.collectables_array[i]);
-                this.score++;
-                scoreboard.innerHTML = `Score: ${this.score}`;
+                if (Math.random() > 0.5)
+                {
+                    this.player.increase_speed();
+                }
+                else
+                {
+                    this.player.increase_rotation_speed();
+                }
+            }
+        }
+    }
+    check_enemy_collision()
+    {
+        for (let i = 0; i < this.enemy_array.length; i++)
+        {
+            if (this.has_collided(this.player.hitbox,this.enemy_array[i]))
+            {
+                console.log("collision with player and enemy!")
+                this.player_has_lost = true;
             }
         }
     }
@@ -354,7 +422,6 @@ class Game
         {
             document.onkeydown = (e) =>
             {
-                //&& bound_check !== true
                 if (e.key === "ArrowUp" || e.key === "w")
                 {
                     this.player.move_player_forward();
@@ -371,7 +438,6 @@ class Game
                 {
                     this.player.rotate_player_clockwise();
                 }
-                // DEBUG -- Does it need to check bounds? I don't think so...
                 if (e.key === " ")
                 {
                     this.add_bullet();
@@ -379,59 +445,156 @@ class Game
             }
         }
     }
+    enemy_move_towards_player()
+    {
+        for (let i = 0; i < this.enemy_array.length; i++)
+        {
+             // move left or right else remain unchanged
+            if (this.enemy_array[i].x < this.player.hitbox.x)
+            {
+                this.enemy_array[i].move_enemy_right();
+            }
+            else if (this.enemy_array[i].x > this.player.hitbox.x)
+            {
+                this.enemy_array[i].move_enemy_left();
+            }
+            // move up or down else remain unchanged
+            if (this.enemy_array[i].y < this.player.hitbox.y)
+            {
+                this.enemy_array[i].move_enemy_down();
+            }
+            else if (this.enemy_array[i].y > this.player.hitbox.y)
+            {
+                this.enemy_array[i].move_enemy_up();
+            }   
+        }
+    }
     clear_game_field(ctx)
     {
         ctx.clearRect(0, 0, canvas_x, canvas_y);
     }
+    display_player_stats()
+    {
+        player_stats.innerHTML = `Speed: ${this.player.speed} Rotation: ${this.player.rotation_speed.toFixed(2)}`;
+    }
+    check_level()
+    {
+        enemies.innerHTML = `Enemies: ${this.enemy_array.length}`;
+        
+        // if no enemies then progress level
+        if (this.enemy_array.length === 0)
+        {
+            this.level += 1;
+            level.innerHTML = `Level: ${this.level}`;    
+            // level * 2 = total number of new enemies
+            for (let i = 0; i < this.level * 2; i++)
+            {
+                // Spawn Enemies off screen with a min distance imposed
+                const min_distance = 50;
+                
+                // random_x, random_y for each new enemy
+                let random_x;
+                let random_y;
+
+                // get random direction (which direction to spawn off screen)
+                // must use math.floor because it will return numbers like 2.78990 and it will never equal 0 or 1 etc
+                let direction = Math.floor(Math.random() * 4);
+
+                // top
+                if (direction === 0)
+                {
+                    random_x = Math.random() * canvas_x;
+                    random_y = -min_distance;
+                }
+                // bottom
+                else if (direction === 1)
+                {
+                    random_x = Math.random() * canvas_x;
+                    random_y = canvas_y + min_distance;
+                }
+                // left
+                else if (direction === 2)
+                {
+                    random_x = -min_distance;
+                    random_y = Math.random() * canvas_y;
+                }
+                // right
+                else
+                {
+                    random_x = canvas_x + min_distance;
+                    random_y = Math.random() * canvas_y;
+                }
+
+                let new_enemy = new Enemy(50,50,random_x, random_y, (Math.random() * 1.75) + 0.25);
+                this.add_enemy(new_enemy);
+            }
+
+            // 50% to add collectable to new level
+            if (Math.random() < 0.75)
+            {
+                console.log("Adding new collectable to field.");
+                let c = new Collectable(Math.random() * canvas_x, Math.random() * canvas_y);
+                this.add_collectable(c);
+            }
+        }
+    }
     game_loop(ctx)
     {
-        // DEBUG -- This needs to be cleaned up.
+        // Is the game over?
+        if (this.player_has_lost)
+        {
+            document.body.innerHTML = `
+            <div style="text-align: center; margin-top: 20%">
+                <h1>GAME OVER!!!</h1>
+                <h1>Final Level: ${this.level}</h1>
+            </div>`;
+            return;
+        }
+
+        // display player stats
+        this.display_player_stats();
 
         // clear canvas
         this.clear_game_field(ctx);
 
-        // draw obstacles
-        //this.draw_obstacle(ctx);
+        // check level
+        this.check_level();
 
-        // check and remove bullets that collide with canvas border (or they'll keep going forever)
-        this.check_bullet_bounds(); 
+        // move enemies
+        this.enemy_move_towards_player();
+
+        // draw enemies
+        this.check_enemy_health();
+        this.draw_enemy(ctx);
+
+        // check and remove bullets that collide with canvas border (or they'll keep going forever) or enemy
+        this.check_bullet(); 
 
         // move then draw bullets
         this.move_and_draw_bullet(ctx);
 
-        // draw player
+        // draw the player
         this.draw_player(ctx);
 
         // draw collectables
-        //this.draw_collectable(ctx);
+        this.draw_collectable(ctx);
 
         // player legal movement
         this.player_key_listener();
 
-        // check obstacle collision
-        //this.check_obstacle_collision(this.player);
+        // check player and enemy collision
+        this.check_enemy_collision();
 
         // check collectable collision
-        //this.check_collectable_collision();
-
-        // check if player won the game
-        //this.check_if_won();
+        this.check_collectable_collision();
     }
 }
 // Pre-game initialization
 
-var p1 = new Player("player 1",canvas_x/2,canvas_y/2);
+var h1 = new Hitbox();
+
+var p1 = new Player("player 1",canvas_x/2,canvas_y/2, h1);
 var game = new Game(p1);
-game.get_obstacle_json();
-game.get_collectable_json();
 
 // GAME START HERE
 setInterval(()=>game.game_loop(ctx), 1000/fps);
-
-
-// CENTER OF PLAYER OBJECT TEMPLATE!!
-// This calculation ONLY works if the player x and y object is TRANSLATED (which it currently is)
-/*
-ctx.fillStyle = "#cc0000";
-ctx.fillRect(this.player.x - 10 / 2, this.player.y - 10 / 2, 10, 10);
-*/
