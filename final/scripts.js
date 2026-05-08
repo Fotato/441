@@ -18,31 +18,40 @@ const ctx = canvas.getContext("2d");
 
 class Player
 {
-    constructor(name, width, height, x, y, speed)
+    constructor(name, x, y)
     {
         this.name = name;
         this.color = "#00ff00";
-        this.width = width;
-        this.height = height;
+        this.width = 50;
+        this.height = 50;
         this.x = x;
         this.y = y;
-        this.speed = speed;
+        this.angle = 0;
+        this.speed = 8;
+        this.rotation_speed = 0.1;
     }
-    move_player_up()
+    move_player_forward()
     {
-        this.y -= this.speed;
+        // DEBUG -- CHECK THIS
+        // https://www.youtube.com/watch?v=Jhgc1X8qvAc
+        // https://youtu.be/YGez3r7rZjw?t=237
+
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
     }
-    move_player_down()
+    move_player_backward()
     {
-        this.y += this.speed;
+        this.x -= Math.cos(this.angle) * this.speed;
+        this.y -= Math.sin(this.angle) * this.speed;
     }
-    move_player_left()
+    // DEBUG -- Technically each rotation could climb to infinity. This is not ideal, obviously.
+    rotate_player_clockwise()
     {
-        this.x -= this.speed;
+        this.angle += this.rotation_speed;
     }
-    move_player_right()
+    rotate_player_counterclockwise()
     {
-        this.x += this.speed;
+        this.angle -= this.rotation_speed;
     }
 }
 
@@ -55,6 +64,25 @@ class Obstacle
         this.height = height;
         this.x = x;
         this.y = y;
+    }
+}
+
+class Bullet
+{
+    constructor()
+    {
+        this.color = "#ff7300";
+        this.width = 10;
+        this.height = 10;
+        this.x = 0;
+        this.y = 0;
+        this.angle = 0;
+        this.speed = 16;
+    }
+    move_bullet_forward()
+    {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
     }
 }
 
@@ -78,6 +106,7 @@ class Game
         this.y_boundary = canvas_y;
         this.player = player;
         this.obstacles_array = [];
+        this.bullet_array = [];
         this.collectables_array = [];
         this.score = 0;
         this.score_max = null;
@@ -93,6 +122,19 @@ class Game
     add_obstacle(obstacle)
     {
         this.obstacles_array.push(obstacle);
+    }
+    add_bullet()
+    {
+        let bullet = new Bullet();
+        bullet.x = this.player.x - bullet.width / 2;
+        bullet.y = this.player.y - bullet.height / 2;
+        bullet.angle = this.player.angle;
+
+        this.bullet_array.push(bullet);
+    }
+    remove_bullet(bullet)
+    {
+        this.bullet_array = this.bullet_array.filter(object => object !== bullet);
     }
     add_collectable(collectable)
     {
@@ -128,9 +170,35 @@ class Game
         });
     }
     draw_player(ctx)
-    {
+    {   
+        // To rotate a shape in HTML canvas you must rotate the entire canvas, draw, then return.
+
+        // this saves the state pre-canvas rotation
+        ctx.save();
+        // https://www.w3schools.com/graphics/canvas_transformations.asp
+        // translate() - moves elements on the canvas to a new point in the grid
+        ctx.translate(this.player.x, this.player.y);
+        ctx.rotate(this.player.angle);
+
+        // DEBUG -- FIX THE CORDS A BIT.
+
+        // Add tank tracks
+        ctx.fillStyle = "#00cc00";
+        ctx.fillRect(-this.player.width / 2.5, -this.player.height / 1.75, this.player.width / 1.25, this.player.height / 4);
+        ctx.fillRect(-this.player.width / 2.5, this.player.height / 1.75, this.player.width / 1.25, -this.player.height / 4);
+
+        // I USED AI FOR THIS. RELATIVE ZERO STUFF. Makes it easier to pivot on origin.
         ctx.fillStyle = this.player.color;
-        ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);     
+        ctx.fillRect(-this.player.width / 2, -this.player.height / 2, this.player.width, this.player.height);
+
+        // Add tank turret
+        ctx.fillStyle = "#00cc00";
+        ctx.fillRect(-this.player.width / 4, -this.player.height / 4, this.player.width/2, this.player.height/2);
+        ctx.fillRect(-this.player.width / 4, -this.player.height / 8, this.player.width, this.player.height/4);
+
+        
+        // this restores the pre-canvas rotation.
+        ctx.restore();
     }
     draw_obstacle(ctx)
     {
@@ -138,6 +206,16 @@ class Game
         {
             ctx.fillStyle = this.obstacles_array[i].color;
             ctx.fillRect(this.obstacles_array[i].x, this.obstacles_array[i].y, this.obstacles_array[i].width, this.obstacles_array[i].height);
+        }
+    }
+    move_and_draw_bullet(ctx)
+    {
+        // DEBUG -- FIX ME!!!
+        for (let i = 0; i < this.bullet_array.length; i++)
+        {
+            ctx.fillStyle = this.bullet_array[i].color;
+            this.bullet_array[i].move_bullet_forward();
+            ctx.fillRect(this.bullet_array[i].x, this.bullet_array[i].y, this.bullet_array[i].width, this.bullet_array[i].height);
         }
     }
     random_rgb_color()
@@ -154,6 +232,18 @@ class Game
             ctx.fillStyle = this.random_rgb_color();
             //ctx.fillStyle = this.collectables_array[i].color;
             ctx.fillRect(this.collectables_array[i].x, this.collectables_array[i].y, this.collectables_array[i].width, this.collectables_array[i].height);
+        }
+    }
+    check_bullet_bounds()
+    {
+        for (let i = 0; i < this.bullet_array.length; i++)
+        {
+            console.log(this.bullet_array.length)
+            if (this.is_out_of_bounds(this.bullet_array[i]))
+            {
+                console.log("deleting bullet")
+                this.remove_bullet(this.bullet_array[i]);
+            }
         }
     }
     is_out_of_bounds(entity)
@@ -267,19 +357,24 @@ class Game
                 //&& bound_check !== true
                 if (e.key === "ArrowUp" || e.key === "w")
                 {
-                    this.player.move_player_up();
+                    this.player.move_player_forward();
                 }
                 else if (e.key === "ArrowDown" || e.key === "s")
                 {
-                    this.player.move_player_down();
+                    this.player.move_player_backward();
                 }
                 else if ((e.key === "ArrowLeft" || e.key === "a"))
                 {
-                    this.player.move_player_left();
+                    this.player.rotate_player_counterclockwise();
                 }
                 else if (e.key === "ArrowRight" || e.key === "d")
                 {
-                    this.player.move_player_right();
+                    this.player.rotate_player_clockwise();
+                }
+                // DEBUG -- Does it need to check bounds? I don't think so...
+                if (e.key === " ")
+                {
+                    this.add_bullet();
                 }
             }
         }
@@ -290,37 +385,53 @@ class Game
     }
     game_loop(ctx)
     {
+        // DEBUG -- This needs to be cleaned up.
+
         // clear canvas
         this.clear_game_field(ctx);
 
         // draw obstacles
-        this.draw_obstacle(ctx);
+        //this.draw_obstacle(ctx);
+
+        // check and remove bullets that collide with canvas border (or they'll keep going forever)
+        this.check_bullet_bounds(); 
+
+        // move then draw bullets
+        this.move_and_draw_bullet(ctx);
 
         // draw player
         this.draw_player(ctx);
 
         // draw collectables
-        this.draw_collectable(ctx);
+        //this.draw_collectable(ctx);
 
         // player legal movement
         this.player_key_listener();
 
         // check obstacle collision
-        this.check_obstacle_collision(this.player);
+        //this.check_obstacle_collision(this.player);
 
         // check collectable collision
-        this.check_collectable_collision();
+        //this.check_collectable_collision();
 
         // check if player won the game
-        this.check_if_won();
+        //this.check_if_won();
     }
 }
 // Pre-game initialization
 
-var p1 = new Player("player 1",50,50,canvas_x,0,8);
+var p1 = new Player("player 1",canvas_x/2,canvas_y/2);
 var game = new Game(p1);
 game.get_obstacle_json();
 game.get_collectable_json();
 
 // GAME START HERE
 setInterval(()=>game.game_loop(ctx), 1000/fps);
+
+
+// CENTER OF PLAYER OBJECT TEMPLATE!!
+// This calculation ONLY works if the player x and y object is TRANSLATED (which it currently is)
+/*
+ctx.fillStyle = "#cc0000";
+ctx.fillRect(this.player.x - 10 / 2, this.player.y - 10 / 2, 10, 10);
+*/
